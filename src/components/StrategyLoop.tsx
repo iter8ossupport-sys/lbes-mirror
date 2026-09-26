@@ -1,44 +1,40 @@
 import { motion } from "framer-motion";
-import { RefreshCw, ArrowRight, Clock, Calendar, BarChart3, TrendingUp, Eye } from "lucide-react";
+import { ArrowRight, Clock, Calendar, BarChart3, TrendingUp, Eye } from "lucide-react";
 import { cn } from "../lib/utils";
 
-interface LoopStepProps {
+interface LifecycleNodeProps {
   label: string;
   action: string;
-  color: string;
+  bg: string;
+  border: string;
   delay: number;
+  dim?: boolean;
 }
 
-const LoopStep = ({ label, action, color, delay }: LoopStepProps) => (
+const LifecycleNode = ({ label, action, bg, border, delay, dim }: LifecycleNodeProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
+    initial={{ opacity: 0, y: 12 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.5, delay }}
-    className="flex flex-col items-center"
+    transition={{ duration: 0.45, delay }}
+    className={cn("flex flex-col items-center gap-2.5 flex-shrink-0", dim && "opacity-50")}
   >
-    <div
-      className={cn(
-        "w-24 h-24 md:w-28 md:h-28 rounded-2xl border flex items-center justify-center mb-3 transition-all duration-300",
-        color
-      )}
-    >
-      <span className="text-lg md:text-xl font-bold text-white">{label}</span>
+    <div className={cn("w-[72px] h-[72px] rounded-xl border flex items-center justify-center transition-all duration-300", bg, border)}>
+      <span className="text-[10px] font-bold tracking-widest uppercase text-white">
+        {label}
+      </span>
     </div>
-    <span className="text-xs text-gray-500">{action}</span>
+    <span className="text-[11px] tracking-wide text-gray-500">{action}</span>
   </motion.div>
 );
 
-const ArrowConnector = ({ delay }: { delay: number }) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    whileInView={{ opacity: 1 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.3, delay }}
-    className="hidden md:flex items-center"
-  >
-    <ArrowRight className="w-5 h-5 text-gray-600" />
-  </motion.div>
+// Spacer — same size as the old arrow, keeps node spacing identical
+const HArrow = ({ delay: _ }: { delay: number }) => (
+  <div className="hidden md:block w-[40px] flex-shrink-0 pb-6" />
+);
+
+const VArrow = ({ delay: _ }: { delay: number }) => (
+  <div className="md:hidden h-[32px]" />
 );
 
 interface VersionCardProps {
@@ -108,13 +104,8 @@ const FutureCard = ({ icon: Icon, title, description, delay }: FutureCardProps) 
 );
 
 export const StrategyLoop = () => {
-  const loopSteps = [
-    { label: "MIRROR", action: "Compare", color: "bg-blue-500/10 border-blue-500/30" },
-    { label: "STRATEGY", action: "Refine", color: "bg-orange-500/10 border-orange-500/30" },
-    { label: "LBES", action: "Engineer", color: "bg-purple-500/10 border-purple-500/30" },
-    { label: "TEST", action: "Verify", color: "bg-green-500/10 border-green-500/30" },
-    { label: "MIRROR", action: "Observe again", color: "bg-blue-500/10 border-blue-500/30" },
-  ];
+
+
 
   const futureFeatures = [
     {
@@ -181,43 +172,55 @@ export const StrategyLoop = () => {
 
         {/* Primary Product Loop */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mb-16"
         >
-          <div className="bg-[#0A0A0A] border border-white/10 rounded-3xl p-8 md:p-12">
-            {/* Loop Visual */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2 mb-8">
-              {loopSteps.map((step, index) => (
-                <div key={index} className="flex items-center">
-                  <LoopStep
-                    label={step.label}
-                    action={step.action}
-                    color={step.color}
-                    delay={0.4 + index * 0.1}
-                  />
-                  {index < loopSteps.length - 1 && (
-                    <ArrowConnector delay={0.45 + index * 0.1} />
-                  )}
-                </div>
-              ))}
+          <div className="border border-white/8 rounded-2xl px-6 py-8 md:px-10 md:py-10 bg-[#080808]">
+
+            {/* Desktop: horizontal row */}
+            <div className="hidden md:flex items-start justify-center">
+              <LifecycleNode label="MIRROR" action="Compare" bg="bg-blue-500/10" border="border-blue-500/40" delay={0.35} />
+              <HArrow delay={0.4} />
+              <LifecycleNode label="STRATEGY" action="Refine" bg="bg-amber-500/10" border="border-amber-500/40" delay={0.45} />
+              <HArrow delay={0.5} />
+              <LifecycleNode label="LBES" action="Engineer" bg="bg-violet-500/10" border="border-violet-500/40" delay={0.55} />
+              <HArrow delay={0.6} />
+              <LifecycleNode label="TEST" action="Verify" bg="bg-green-500/10" border="border-green-500/40" delay={0.65} />
+              <HArrow delay={0.7} />
+              <LifecycleNode label="MIRROR" action="Observe again" bg="bg-blue-500/5" border="border-blue-500/20" delay={0.75} dim />
             </div>
 
-            {/* Repeat Indicator */}
+            {/* Loop-back hint — desktop only */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.9 }}
-              className="flex justify-center"
+              className="hidden md:flex justify-center mt-4"
             >
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
-                <RefreshCw className="w-4 h-4 text-gray-500" />
-                <span className="text-xs font-medium text-gray-400">REPEAT</span>
-              </div>
+              <svg width="420" height="20" viewBox="0 0 420 20" fill="none">
+                {/* Curved arc connecting last node back to first */}
+                <path d="M 390 4 Q 210 28 30 4" stroke="rgba(255,255,255,0.18)" strokeWidth="1" fill="none" strokeDasharray="3 4"/>
+                <polyline points="26,0 30,4 34,0" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1"/>
+              </svg>
             </motion.div>
+
+            {/* Mobile: vertical stack */}
+            <div className="md:hidden flex flex-col items-center">
+              <LifecycleNode label="MIRROR" action="Compare" bg="bg-blue-500/10" border="border-blue-500/40" delay={0.35} />
+              <VArrow delay={0.4} />
+              <LifecycleNode label="STRATEGY" action="Refine" bg="bg-amber-500/10" border="border-amber-500/40" delay={0.45} />
+              <VArrow delay={0.5} />
+              <LifecycleNode label="LBES" action="Engineer" bg="bg-violet-500/10" border="border-violet-500/40" delay={0.55} />
+              <VArrow delay={0.6} />
+              <LifecycleNode label="TEST" action="Verify" bg="bg-green-500/10" border="border-green-500/40" delay={0.65} />
+              <VArrow delay={0.7} />
+              <LifecycleNode label="MIRROR" action="Observe again" bg="bg-blue-500/5" border="border-blue-500/20" delay={0.75} dim />
+            </div>
+
           </div>
         </motion.div>
 
